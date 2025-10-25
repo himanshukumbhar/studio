@@ -10,10 +10,10 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {extractTextFromUrl} from '@/services/url-extraction';
 
 const ExtractTopicsFromURLInputSchema = z.object({
   url: z.string().url().describe('The URL to extract topics from.'),
+  content: z.string().describe('The content of the URL.'),
 });
 export type ExtractTopicsFromURLInput = z.infer<typeof ExtractTopicsFromURLInputSchema>;
 
@@ -33,7 +33,7 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert content analyzer. Your task is to identify the main topics discussed in the content of a given URL.
 
   URL: {{{url}}}
-  Content: {{content}}
+  Content: {{{content}}}
 
   Based on the content above, identify the key topics discussed. Return a list of topics.
   Ensure that topics are specific and concise.
@@ -48,8 +48,7 @@ const extractTopicsFromURLFlow = ai.defineFlow(
     outputSchema: ExtractTopicsFromURLOutputSchema,
   },
   async input => {
-    const content = await extractTextFromUrl(input.url);
-    const {output} = await prompt({...input, content});
+    const {output} = await prompt(input);
     return {
       topics: output?.topics ?? [],
     };

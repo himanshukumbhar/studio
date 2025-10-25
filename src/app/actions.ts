@@ -33,11 +33,16 @@ export async function analyzeUrl(url: string): Promise<AnalysisResult | Analysis
     }
     
     // Run AI flows sequentially to avoid rate limiting on the free tier.
-    const summary = (await summarizeUrlContent({ url: validatedUrl }))?.summary ?? 'Could not generate summary.';
-    const topics = (await extractTopicsFromURL({ url: validatedUrl }))?.topics ?? [];
-    const sentiment = (await determineSentimentOfURLContent({ url: validatedUrl, content }))?.sentiment ?? 'neutral';
-    const keywords = (await generateKeywordsForUrl({ url: validatedUrl, content }))?.keywords ?? [];
+    const summaryResult = await summarizeUrlContent({ url: validatedUrl, content });
+    const topicsResult = await extractTopicsFromURL({ url: validatedUrl, content });
+    const sentimentResult = await determineSentimentOfURLContent({ url: validatedUrl, content });
+    const keywordsResult = await generateKeywordsForUrl({ url: validatedUrl, content });
 
+    const summary = summaryResult?.summary ?? 'Could not generate summary.';
+    const topics = topicsResult?.topics ?? [];
+    const sentiment = sentimentResult?.sentiment ?? 'neutral';
+    const keywords = keywordsResult?.keywords ?? [];
+    
     return {
       url: validatedUrl,
       title,

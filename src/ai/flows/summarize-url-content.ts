@@ -10,10 +10,10 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {extractFromUrl} from '@/services/url-extraction';
 
 const SummarizeUrlContentInputSchema = z.object({
   url: z.string().url().describe('The URL to summarize.'),
+  content: z.string().describe('The content of the URL.'),
 });
 export type SummarizeUrlContentInput = z.infer<typeof SummarizeUrlContentInputSchema>;
 
@@ -40,13 +40,7 @@ const summarizeUrlContentFlow = ai.defineFlow(
     outputSchema: SummarizeUrlContentOutputSchema,
   },
   async input => {
-    const { url } = input;
-    const { title, description, keywords, content } = await extractFromUrl(url);
-
-    const {output} = await summarizeUrlContentPrompt({
-      url: url,
-      content: content,
-    });
+    const {output} = await summarizeUrlContentPrompt(input);
     return output!;
   }
 );
