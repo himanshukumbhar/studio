@@ -1,5 +1,6 @@
 import { ShareButton } from './share-button';
 import { Bot } from 'lucide-react';
+import Link from 'next/link';
 
 export function Header() {
   return (
@@ -10,6 +11,14 @@ export function Header() {
             <Bot className="h-6 w-6 text-primary" />
             <span className="font-bold">IDX Insights</span>
           </a>
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            <Link
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              href="/gaming"
+            >
+              Gaming
+            </Link>
+          </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
             <ShareButton />

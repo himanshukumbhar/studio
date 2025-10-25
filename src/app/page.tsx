@@ -5,7 +5,7 @@ import { AnalysisDisplay } from '@/components/analysis-display';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function Page({
+export default async function Page({
   searchParams,
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
@@ -83,5 +83,5 @@ function AnalysisSkeleton() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
