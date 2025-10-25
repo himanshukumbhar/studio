@@ -31,27 +31,12 @@ export async function analyzeUrl(url: string): Promise<AnalysisResult | Analysis
     if (!content) {
       return { error: 'Could not extract content from the URL.', url: validatedUrl };
     }
-
-    const [summaryResult, topicsResult, sentimentResult, keywordsResult] = await Promise.allSettled([
-      summarizeUrlContent({ url: validatedUrl }),
-      extractTopicsFromURL({ url: validatedUrl }),
-      determineSentimentOfURLContent({ url: validatedUrl, content }),
-      generateKeywordsForUrl({ url: validatedUrl, content })
-    ]);
-
-    const getResult = <T>(promiseSettledResult: PromiseSettledResult<T>): T | null => {
-        if (promiseSettledResult.status === 'fulfilled') {
-            return promiseSettledResult.value;
-        }
-        console.error('AI Flow failed:', promiseSettledResult.reason);
-        return null;
-    }
-
-    const summary = getResult(summaryResult)?.summary ?? 'Could not generate summary.';
-    const topics = getResult(topicsResult)?.topics ?? [];
-    const sentiment = getResult(sentimentResult)?.sentiment ?? 'neutral';
-    const keywords = getResult(keywordsResult)?.keywords ?? [];
-
+    
+    // Run AI flows sequentially to avoid rate limiting on the free tier.
+    const summary = (await summarizeUrlContent({ url: validatedUrl }))?.summary ?? 'Could not generate summary.';
+    const topics = (await extractTopicsFromURL({ url: validatedUrl }))?.topics ?? [];
+    const sentiment = (await determineSentimentOfURLContent({ url: validatedUrl, content }))?.sentiment ?? 'neutral';
+    const keywords = (await generateKeywordsForUrl({ url: validatedUrl, content }))?.keywords ?? [];
 
     return {
       url: validatedUrl,
@@ -66,6 +51,10 @@ export async function analyzeUrl(url: string): Promise<AnalysisResult | Analysis
     console.error('Error analyzing URL:', error);
     if (error.code === 'ERR_INVALID_URL') {
         return { error: 'The provided URL is invalid. Please enter a valid URL.', url };
+    }
+    // Check for rate limit error
+    if (error.message && error.message.includes('429')) {
+      return { error: 'API rate limit exceeded. Please wait a moment and try again.', url };
     }
     return { error: `An unexpected error occurred: ${error.message}`, url };
   }
