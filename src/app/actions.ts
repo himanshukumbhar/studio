@@ -22,6 +22,9 @@ export type AnalysisError = {
   url: string;
 };
 
+// Helper function to add a delay
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export async function analyzeUrl(url: string): Promise<AnalysisResult | AnalysisError> {
   try {
     const validatedUrl = new URL(url).toString();
@@ -32,10 +35,13 @@ export async function analyzeUrl(url: string): Promise<AnalysisResult | Analysis
       return { error: 'Could not extract content from the URL.', url: validatedUrl };
     }
     
-    // Run AI flows sequentially to avoid rate limiting on the free tier.
+    // Run AI flows sequentially with a delay to avoid rate limiting on the free tier.
     const summaryResult = await summarizeUrlContent({ url: validatedUrl, content });
+    await delay(1000); 
     const topicsResult = await extractTopicsFromURL({ url: validatedUrl, content });
+    await delay(1000);
     const sentimentResult = await determineSentimentOfURLContent({ url: validatedUrl, content });
+    await delay(1000);
     const keywordsResult = await generateKeywordsForUrl({ url: validatedUrl, content });
 
     const summary = summaryResult?.summary ?? 'Could not generate summary.';
