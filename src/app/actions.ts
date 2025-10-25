@@ -37,11 +37,11 @@ export async function analyzeUrl(url: string): Promise<AnalysisResult | Analysis
     
     // Run AI flows sequentially with a delay to avoid rate limiting on the free tier.
     const summaryResult = await summarizeUrlContent({ url: validatedUrl, content });
-    await delay(1000); 
+    await delay(2000); 
     const topicsResult = await extractTopicsFromURL({ url: validatedUrl, content });
-    await delay(1000);
+    await delay(2000);
     const sentimentResult = await determineSentimentOfURLContent({ url: validatedUrl, content });
-    await delay(1000);
+    await delay(2000);
     const keywordsResult = await generateKeywordsForUrl({ url: validatedUrl, content });
 
     const summary = summaryResult?.summary ?? 'Could not generate summary.';
